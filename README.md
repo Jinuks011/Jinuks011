@@ -1,18 +1,3 @@
-import os
-import shutil
-from zipfile import ZipFile
-from PIL import Image
-
-# Re-create the Flutter project structure after environment reset
-app_dir = "/mnt/data/bees_general_trading"
-lib_dir = os.path.join(app_dir, "lib")
-assets_dir = os.path.join(app_dir, "assets")
-
-os.makedirs(lib_dir, exist_ok=True)
-os.makedirs(assets_dir, exist_ok=True)
-
-# Restore main.dart content
-main_dart_code = '''
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -120,7 +105,7 @@ class _ProductListPageState extends State<ProductListPage> {
                 ? Image.file(File(product.imagePath!), width: 50, height: 50, fit: BoxFit.cover)
                 : Icon(Icons.shopping_bag),
             title: Text(product.name),
-            subtitle: Text("Code: ${product.code}\\nQty: ${product.quantity} | Price: ${product.price}"),
+            subtitle: Text("Code: ${product.code}\nQty: ${product.quantity} | Price: ${product.price}"),
             trailing: IconButton(
               icon: Icon(Icons.delete, color: Colors.red),
               onPressed: () => deleteProduct(index),
@@ -135,47 +120,3 @@ class _ProductListPageState extends State<ProductListPage> {
     );
   }
 }
-'''
-
-# Write main.dart
-main_dart_path = os.path.join(lib_dir, "main.dart")
-with open(main_dart_path, "w") as f:
-    f.write(main_dart_code)
-
-# Create a placeholder honeycomb image
-honeycomb_path = os.path.join(assets_dir, "honeycomb.jpg")
-img = Image.new('RGB', (800, 600), color=(255, 223, 0))  # yellow background
-img.save(honeycomb_path)
-
-# Write pubspec.yaml
-pubspec_yaml = """
-name: bees_general_trading
-description: A mobile product manager for Bees General Trading
-version: 1.0.0+1
-
-environment:
-  sdk: ">=2.12.0 <3.0.0"
-
-dependencies:
-  flutter:
-    sdk: flutter
-  image_picker: ^1.0.0
-
-flutter:
-  uses-material-design: true
-  assets:
-    - assets/honeycomb.jpg
-"""
-
-with open(os.path.join(app_dir, "pubspec.yaml"), "w") as f:
-    f.write(pubspec_yaml)
-
-# Copy to a new folder for GitHub packaging
-github_repo_dir = "/mnt/data/bees_general_trading_github"
-shutil.copytree(app_dir, github_repo_dir)
-
-# Zip it for upload to GitHub
-github_zip_path = "/mnt/data/bees_general_trading_github.zip"
-shutil.make_archive(github_repo_dir, 'zip', github_repo_dir)
-
-github_zip_path
